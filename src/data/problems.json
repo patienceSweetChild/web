@@ -1,0 +1,417 @@
+{
+  "problems": [
+    {
+      "id": "ad_clicks_are_not_becoming_leads",
+      "title": "Ad Clicks Are Not Becoming Leads",
+      "label": "AD CLICKS ARE NOT BECOMING LEADS",
+      "letter": "A",
+      "expectedClient": []
+    },
+    {
+      "id": "ad_fatigue",
+      "title": "Ad Fatigue",
+      "label": "AD FATIGUE",
+      "letter": "B",
+      "expectedClient": []
+    },
+    {
+      "id": "amazon_a_or_marketplace_story_is_weak",
+      "title": "Amazon A+ or Marketplace Story Is Weak",
+      "label": "AMAZON A+ OR MARKETPLACE STORY IS WEAK",
+      "letter": "C",
+      "expectedClient": []
+    },
+    {
+      "id": "app_or_software_needs_a_demo",
+      "title": "App or Software Needs a Demo",
+      "label": "APP OR SOFTWARE NEEDS A DEMO",
+      "letter": "D",
+      "expectedClient": []
+    },
+    {
+      "id": "audience_is_not_problem_aware",
+      "title": "Audience Is Not Problem-Aware",
+      "label": "AUDIENCE IS NOT PROBLEM-AWARE",
+      "letter": "E",
+      "expectedClient": []
+    },
+    {
+      "id": "bookings_or_appointments_are_not_completed",
+      "title": "Bookings or Appointments Are Not Completed",
+      "label": "BOOKINGS OR APPOINTMENTS ARE NOT COMPLETED",
+      "letter": "F",
+      "expectedClient": []
+    },
+    {
+      "id": "brand_feels_faceless",
+      "title": "Brand Feels Faceless",
+      "label": "BRAND FEELS FACELESS",
+      "letter": "G",
+      "expectedClient": []
+    },
+    {
+      "id": "buyers_are_comparing_and_stalling",
+      "title": "Buyers Are Comparing and Stalling",
+      "label": "BUYERS ARE COMPARING AND STALLING",
+      "letter": "H",
+      "expectedClient": []
+    },
+    {
+      "id": "campaign_has_no_focused_landing_page",
+      "title": "Campaign Has No Focused Landing Page",
+      "label": "CAMPAIGN HAS NO FOCUSED LANDING PAGE",
+      "letter": "I",
+      "expectedClient": []
+    },
+    {
+      "id": "campaign_message_is_not_memorable",
+      "title": "Campaign Message Is Not Memorable",
+      "label": "CAMPAIGN MESSAGE IS NOT MEMORABLE",
+      "letter": "J",
+      "expectedClient": []
+    },
+    {
+      "id": "creative_production_is_a_bottleneck",
+      "title": "Creative Production Is a Bottleneck",
+      "label": "CREATIVE PRODUCTION IS A BOTTLENECK",
+      "letter": "K",
+      "expectedClient": []
+    },
+    {
+      "id": "creatives_are_not_stopping_the_scroll",
+      "title": "Creatives Are Not Stopping the Scroll",
+      "label": "CREATIVES ARE NOT STOPPING THE SCROLL",
+      "letter": "L",
+      "expectedClient": []
+    },
+    {
+      "id": "customer_cannot_imagine_the_product_in_their_life",
+      "title": "Customer Cannot Imagine the Product in Their Life",
+      "label": "CUSTOMER CANNOT IMAGINE THE PRODUCT IN THEIR LIFE",
+      "letter": "M",
+      "expectedClient": []
+    },
+    {
+      "id": "customer_journey_or_process_is_confusing",
+      "title": "Customer Journey or Process Is Confusing",
+      "label": "CUSTOMER JOURNEY OR PROCESS IS CONFUSING",
+      "letter": "N",
+      "expectedClient": []
+    },
+    {
+      "id": "customers_forget_to_reorder",
+      "title": "Customers Forget to Reorder",
+      "label": "CUSTOMERS FORGET TO REORDER",
+      "letter": "O",
+      "expectedClient": []
+    },
+    {
+      "id": "event_or_store_footfall_is_low",
+      "title": "Event or Store Footfall Is Low",
+      "label": "EVENT OR STORE FOOTFALL IS LOW",
+      "letter": "P",
+      "expectedClient": []
+    },
+    {
+      "id": "event_or_webinar_registrations_are_low",
+      "title": "Event or Webinar Registrations Are Low",
+      "label": "EVENT OR WEBINAR REGISTRATIONS ARE LOW",
+      "letter": "Q",
+      "expectedClient": []
+    },
+    {
+      "id": "faqs_and_objections_keep_repeating",
+      "title": "FAQs and Objections Keep Repeating",
+      "label": "FAQS AND OBJECTIONS KEEP REPEATING",
+      "letter": "R",
+      "expectedClient": []
+    },
+    {
+      "id": "fashion_collection_or_drop_is_not_selling",
+      "title": "Fashion Collection or Drop Is Not Selling",
+      "label": "FASHION COLLECTION OR DROP IS NOT SELLING",
+      "letter": "S",
+      "expectedClient": []
+    },
+    {
+      "id": "features_are_not_connected_to_benefits",
+      "title": "Features Are Not Connected to Benefits",
+      "label": "FEATURES ARE NOT CONNECTED TO BENEFITS",
+      "letter": "T",
+      "expectedClient": []
+    },
+    {
+      "id": "festival_or_seasonal_sale_is_weak",
+      "title": "Festival or Seasonal Sale Is Weak",
+      "label": "FESTIVAL OR SEASONAL SALE IS WEAK",
+      "letter": "U",
+      "expectedClient": []
+    },
+    {
+      "id": "high_ticket_leads_are_not_closing",
+      "title": "High-Ticket Leads Are Not Closing",
+      "label": "HIGH-TICKET LEADS ARE NOT CLOSING",
+      "letter": "V",
+      "expectedClient": []
+    },
+    {
+      "id": "hiring_campaign_is_not_reaching_candidates",
+      "title": "Hiring Campaign Is Not Reaching Candidates",
+      "label": "HIRING CAMPAIGN IS NOT REACHING CANDIDATES",
+      "letter": "W",
+      "expectedClient": []
+    },
+    {
+      "id": "launch_has_no_buzz",
+      "title": "Launch Has No Buzz",
+      "label": "LAUNCH HAS NO BUZZ",
+      "letter": "X",
+      "expectedClient": []
+    },
+    {
+      "id": "lead_quality_is_poor",
+      "title": "Lead Quality Is Poor",
+      "label": "LEAD QUALITY IS POOR",
+      "letter": "Y",
+      "expectedClient": []
+    },
+    {
+      "id": "listing_images_do_not_explain_the_product",
+      "title": "Listing Images Do Not Explain the Product",
+      "label": "LISTING IMAGES DO NOT EXPLAIN THE PRODUCT",
+      "letter": "Z",
+      "expectedClient": []
+    },
+    {
+      "id": "local_visibility_is_low",
+      "title": "Local Visibility Is Low",
+      "label": "LOCAL VISIBILITY IS LOW",
+      "letter": "AA",
+      "expectedClient": []
+    },
+    {
+      "id": "low_brand_awareness",
+      "title": "Low Brand Awareness",
+      "label": "LOW BRAND AWARENESS",
+      "letter": "AB",
+      "expectedClient": []
+    },
+    {
+      "id": "low_brand_trust",
+      "title": "Low Brand Trust",
+      "label": "LOW BRAND TRUST",
+      "letter": "AC",
+      "expectedClient": []
+    },
+    {
+      "id": "low_social_engagement",
+      "title": "Low Social Engagement",
+      "label": "LOW SOCIAL ENGAGEMENT",
+      "letter": "AD",
+      "expectedClient": []
+    },
+    {
+      "id": "message_is_inconsistent_across_channels",
+      "title": "Message Is Inconsistent Across Channels",
+      "label": "MESSAGE IS INCONSISTENT ACROSS CHANNELS",
+      "letter": "AE",
+      "expectedClient": []
+    },
+    {
+      "id": "no_repeatable_creative_engine",
+      "title": "No Repeatable Creative Engine",
+      "label": "NO REPEATABLE CREATIVE ENGINE",
+      "letter": "AF",
+      "expectedClient": []
+    },
+    {
+      "id": "no_urgency_to_buy",
+      "title": "No Urgency to Buy",
+      "label": "NO URGENCY TO BUY",
+      "letter": "AG",
+      "expectedClient": []
+    },
+    {
+      "id": "not_enough_leads",
+      "title": "Not Enough Leads",
+      "label": "NOT ENOUGH LEADS",
+      "letter": "AH",
+      "expectedClient": []
+    },
+    {
+      "id": "not_enough_social_proof",
+      "title": "Not Enough Social Proof",
+      "label": "NOT ENOUGH SOCIAL PROOF",
+      "letter": "AI",
+      "expectedClient": []
+    },
+    {
+      "id": "offer_is_not_compelling",
+      "title": "Offer Is Not Compelling",
+      "label": "OFFER IS NOT COMPELLING",
+      "letter": "AJ",
+      "expectedClient": []
+    },
+    {
+      "id": "offline_attention_is_not_captured_digitally",
+      "title": "Offline Attention Is Not Captured Digitally",
+      "label": "OFFLINE ATTENTION IS NOT CAPTURED DIGITALLY",
+      "letter": "AK",
+      "expectedClient": []
+    },
+    {
+      "id": "overdependent_on_one_creative_format",
+      "title": "Overdependent on One Creative Format",
+      "label": "OVERDEPENDENT ON ONE CREATIVE FORMAT",
+      "letter": "AL",
+      "expectedClient": []
+    },
+    {
+      "id": "parent_or_audience_safety_concern",
+      "title": "Parent or Audience Safety Concern",
+      "label": "PARENT OR AUDIENCE SAFETY CONCERN",
+      "letter": "AM",
+      "expectedClient": []
+    },
+    {
+      "id": "post_purchase_education_is_missing",
+      "title": "Post-Purchase Education Is Missing",
+      "label": "POST-PURCHASE EDUCATION IS MISSING",
+      "letter": "AN",
+      "expectedClient": []
+    },
+    {
+      "id": "price_resistance",
+      "title": "Price Resistance",
+      "label": "PRICE RESISTANCE",
+      "letter": "AO",
+      "expectedClient": []
+    },
+    {
+      "id": "product_is_hard_to_understand",
+      "title": "Product Is Hard to Understand",
+      "label": "PRODUCT IS HARD TO UNDERSTAND",
+      "letter": "AP",
+      "expectedClient": []
+    },
+    {
+      "id": "product_looks_cheap_or_ordinary",
+      "title": "Product Looks Cheap or Ordinary",
+      "label": "PRODUCT LOOKS CHEAP OR ORDINARY",
+      "letter": "AQ",
+      "expectedClient": []
+    },
+    {
+      "id": "product_page_is_not_converting",
+      "title": "Product Page Is Not Converting",
+      "label": "PRODUCT PAGE IS NOT CONVERTING",
+      "letter": "AR",
+      "expectedClient": []
+    },
+    {
+      "id": "quality_claims_are_not_believed",
+      "title": "Quality Claims Are Not Believed",
+      "label": "QUALITY CLAIMS ARE NOT BELIEVED",
+      "letter": "AS",
+      "expectedClient": []
+    },
+    {
+      "id": "real_estate_project_is_not_generating_inquiries",
+      "title": "Real Estate Project Is Not Generating Inquiries",
+      "label": "REAL ESTATE PROJECT IS NOT GENERATING INQUIRIES",
+      "letter": "AT",
+      "expectedClient": []
+    },
+    {
+      "id": "referrals_and_community_are_weak",
+      "title": "Referrals and Community Are Weak",
+      "label": "REFERRALS AND COMMUNITY ARE WEAK",
+      "letter": "AU",
+      "expectedClient": []
+    },
+    {
+      "id": "repeat_purchase_is_low",
+      "title": "Repeat Purchase Is Low",
+      "label": "REPEAT PURCHASE IS LOW",
+      "letter": "AV",
+      "expectedClient": []
+    },
+    {
+      "id": "retargeting_creatives_are_stale",
+      "title": "Retargeting Creatives Are Stale",
+      "label": "RETARGETING CREATIVES ARE STALE",
+      "letter": "AW",
+      "expectedClient": []
+    },
+    {
+      "id": "service_offer_is_unclear",
+      "title": "Service Offer Is Unclear",
+      "label": "SERVICE OFFER IS UNCLEAR",
+      "letter": "AX",
+      "expectedClient": []
+    },
+    {
+      "id": "too_few_creative_variations",
+      "title": "Too Few Creative Variations",
+      "label": "TOO FEW CREATIVE VARIATIONS",
+      "letter": "AY",
+      "expectedClient": []
+    },
+    {
+      "id": "traffic_but_no_sales",
+      "title": "Traffic but No Sales",
+      "label": "TRAFFIC BUT NO SALES",
+      "letter": "AZ",
+      "expectedClient": []
+    },
+    {
+      "id": "upsell_or_cross_sell_is_missing",
+      "title": "Upsell or Cross-Sell Is Missing",
+      "label": "UPSELL OR CROSS-SELL IS MISSING",
+      "letter": "BA",
+      "expectedClient": []
+    },
+    {
+      "id": "warm_audience_is_not_returning",
+      "title": "Warm Audience Is Not Returning",
+      "label": "WARM AUDIENCE IS NOT RETURNING",
+      "letter": "BB",
+      "expectedClient": []
+    },
+    {
+      "id": "weak_founder_authority",
+      "title": "Weak Founder Authority",
+      "label": "WEAK FOUNDER AUTHORITY",
+      "letter": "BC",
+      "expectedClient": []
+    },
+    {
+      "id": "website_looks_outdated_or_untrusted",
+      "title": "Website Looks Outdated or Untrusted",
+      "label": "WEBSITE LOOKS OUTDATED OR UNTRUSTED",
+      "letter": "BD",
+      "expectedClient": []
+    },
+    {
+      "id": "whatsapp_leads_are_not_followed_up",
+      "title": "WhatsApp Leads Are Not Followed Up",
+      "label": "WHATSAPP LEADS ARE NOT FOLLOWED UP",
+      "letter": "BE",
+      "expectedClient": []
+    },
+    {
+      "id": "winning_creative_is_not_being_expanded",
+      "title": "Winning Creative Is Not Being Expanded",
+      "label": "WINNING CREATIVE IS NOT BEING EXPANDED",
+      "letter": "BF",
+      "expectedClient": []
+    },
+    {
+      "id": "wrong_beliefs_are_blocking_the_sale",
+      "title": "Wrong Beliefs Are Blocking the Sale",
+      "label": "WRONG BELIEFS ARE BLOCKING THE SALE",
+      "letter": "BG",
+      "expectedClient": []
+    }
+  ]
+}

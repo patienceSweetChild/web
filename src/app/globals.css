@@ -1,0 +1,164 @@
+@import "../styles/shell.css";
+@import "../styles/pin-detail.css";
+@import "../styles/onboarding.css";
+
+/* Intentionally no Tailwind preflight — shell.css + pin-detail.css own the design system. */
+
+/* React form controls inside legacy panel chrome */
+.select-field select,
+.select-field input,
+.budget-field .bvalue-input {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  border: none;
+  background: transparent;
+  outline: none;
+}
+
+.budget-field .bvalue-input {
+  font-weight: 600;
+}
+
+.format-pack-body input,
+.notes-editor,
+.matrix-client-select,
+.pin-dir-search {
+  font: inherit;
+  color: inherit;
+}
+
+.format-pack-body {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.format-pack-body label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--jira-muted);
+}
+
+.format-pack-body input {
+  border: 1px solid var(--jira-border);
+  border-radius: 6px;
+  padding: 6px 8px;
+}
+
+.notes-editor {
+  width: 100%;
+  border: 1px solid var(--jira-border);
+  border-radius: 8px;
+  padding: 10px;
+  resize: vertical;
+  min-height: 120px;
+}
+
+.panel-footer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 0 8px;
+  position: sticky;
+  bottom: 0;
+  background: linear-gradient(to top, #fff 70%, transparent);
+}
+
+.tag-picker-menu.open {
+  display: block;
+  max-height: 220px;
+  overflow: auto;
+  z-index: 20;
+}
+
+.tag-picker-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: transparent;
+  padding: 8px 10px;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.tag-picker-item:hover {
+  background: var(--jira-hover);
+}
+
+.pill button.x,
+.pill .x {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  margin-left: 2px;
+  font: inherit;
+  color: inherit;
+  padding: 0;
+}
+
+.checkbox-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.loading-msg {
+  padding: 24px;
+  color: var(--jira-muted);
+}
+
+.branch-filters,
+.inline-add-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 0 20px 12px;
+}
+
+.kanban-create.secondary {
+  margin-top: 4px;
+}
+
+/* Onboarding create-client modal — ensure form fields stack & fill width */
+.picker-modal .project-create-form {
+  overflow: auto;
+}
+
+.picker-modal .project-create-form .project-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+}
+
+.picker-modal .project-create-form .project-field > .search,
+.picker-modal .project-create-form .project-field > select.search {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding-left: 10px;
+}
+
+.picker-modal .project-create-form .project-create-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  min-width: 0;
+}
+
+.picker-modal .project-create-form .assign-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
