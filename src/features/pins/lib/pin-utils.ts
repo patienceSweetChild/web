@@ -1,10 +1,23 @@
 import type {
+  BoardId,
   FormatKey,
   NormalizedStatus,
   Pin,
+  PinBranch,
   PinColumn,
 } from "@/features/pins/types";
 import type { PinFilterState } from "@/features/pins/lib/filters";
+
+/** Flat-lay parent concept row (Board Parent). Children use `{parentId}__{output}`. */
+export function isParentPin(pin: Pick<Pin, "subtype"> | null | undefined) {
+  return String(pin?.subtype || "").toLowerCase() === "parent";
+}
+
+/** Scope pins to a board so parent ids only appear on Board Parent (catalog). */
+export function pinsForBoard(boardId: BoardId, pins: Pin[]): Pin[] {
+  if (boardId === "catalog") return pins.filter(isParentPin);
+  return pins.filter((p) => !isParentPin(p));
+}
 
 export function normalizedStatus(pin: Pick<Pin, "status"> | null | undefined): NormalizedStatus {
   const status = String(pin?.status || "").toLowerCase();
@@ -25,7 +38,7 @@ export function isActive(pin: Pin) {
   return normalizedStatus(pin) === "Active";
 }
 
-export function columnToFormatKey(column: string | undefined): FormatKey | "automation" {
+export function columnToFormatKey(column: string | undefined): FormatKey {
   if (column === "images") return "image";
   if (column === "print") return "print";
   if (column === "web") return "web";
@@ -45,10 +58,16 @@ export function columnDisplayName(column: string | undefined) {
 }
 
 export function formatAssetCounts(pin: Pin) {
-  const counts: Record<FormatKey, number> = { video: 0, image: 0, print: 0, web: 0 };
+  const counts: Record<FormatKey, number> = {
+    video: 0,
+    image: 0,
+    print: 0,
+    web: 0,
+    automation: 0,
+  };
   const stored = pin.formatAssets;
   if (stored && typeof stored === "object") {
-    (["video", "image", "print", "web"] as FormatKey[]).forEach((key) => {
+    (Object.keys(counts) as FormatKey[]).forEach((key) => {
       const entry = stored[key];
       if (entry == null) return;
       counts[key] = typeof entry === "number" ? Number(entry) || 0 : Number(entry.assets) || 0;
@@ -56,15 +75,91 @@ export function formatAssetCounts(pin: Pin) {
     return counts;
   }
   const key = columnToFormatKey(pin.column);
-  if (key !== "automation" && key in counts) {
-    counts[key] = Number(pin.assets) || 0;
-  }
+  counts[key] = Number(pin.assets) || 0;
   return counts;
 }
 
 export function primaryFormatKey(column: string | undefined): FormatKey {
-  const key = columnToFormatKey(column);
-  return key === "automation" ? "video" : key;
+  return columnToFormatKey(column);
+}
+
+const FORMAT_COLUMN: Record<FormatKey, PinColumn> = {
+  video: "videos",
+  image: "images",
+  print: "print",
+  web: "web",
+  automation: "automation",
+};
+
+const FORMAT_SUBTYPE: Record<FormatKey, string> = {
+  video: "Video",
+  image: "Images",
+  print: "Flyer",
+  web: "Landing Page",
+  automation: "Automation",
+};
+
+const FORMAT_BRANCH: Record<FormatKey, PinBranch | string> = {
+  video: "Ads",
+  image: "Ads",
+  print: "Print",
+  web: "Web",
+  automation: "Automation",
+};
+
+/** Child pin id for a parent format variation (`relatable_situation__video`). */
+export function formatChildPinId(parentId: string, format: FormatKey) {
+  return `${parentId}__${format}`;
+}
+
+export function isFormatChildPinId(id: string, parentId: string) {
+  return id.startsWith(`${parentId}__`);
+}
+
+/** Project selected output formats onto Board Child (+ tagged boards via copied tags). */
+export function buildFormatChildPins(parent: Pin, formats: FormatKey[]): Pin[] {
+  return formats.map((format) => {
+    const pack = parent.formatPacks?.[format];
+    const fa = parent.formatAssets?.[format];
+    const assets =
+      Number(pack?.assets) ||
+      (typeof fa === "number" ? fa : Number(fa?.assets)) ||
+      0;
+    const hooks = Number(pack?.hooks) || 0;
+    const angles = Number(pack?.angles) || 0;
+    const executions = Number(pack?.executions) || 0;
+    const subtype = FORMAT_SUBTYPE[format];
+    const column = FORMAT_COLUMN[format];
+    return {
+      id: formatChildPinId(parent.id, format),
+      name: `${parent.name} — ${subtype}`,
+      subtype,
+      branch: FORMAT_BRANCH[format],
+      column,
+      price: parent.price,
+      lower: parent.lower,
+      higher: parent.higher,
+      PM: parent.PM,
+      status: parent.status,
+      tags: [subtype],
+      displayTags: [subtype.toUpperCase()],
+      notes: parent.notes || "",
+      expectedClient: [...(parent.expectedClient || [])],
+      selling: [...(parent.selling || [])],
+      creativePack: [...(parent.creativePack || [])],
+      fullCampaign: [...(parent.fullCampaign || [])],
+      talent: [...(parent.talent || [])],
+      problems: [...(parent.problems || [])],
+      hooks,
+      angles,
+      executions,
+      assets,
+      formatAssets: {},
+      formatPacks: {},
+      stage: parent.stage || 1,
+      footerLabel: subtype,
+    };
+  });
 }
 
 export function buildPinId(pins: Pin[], column: string) {
@@ -96,6 +191,7 @@ export type CreateDraftOptions = {
 export function createDraftPin(pins: Pin[], options?: CreateDraftOptions): Pin {
   const column = options?.column || "videos";
   const realColumn = (column === "draft" ? "videos" : column) as PinColumn;
+  const isParent = String(options?.subtype || "").toLowerCase() === "parent";
   const subtype =
     options?.subtype ||
     (realColumn === "videos"
@@ -110,13 +206,15 @@ export function createDraftPin(pins: Pin[], options?: CreateDraftOptions): Pin {
   const status = options?.status || (column === "draft" ? "Draft" : "Published");
   const branch =
     options?.branch ||
-    (realColumn === "print"
-      ? "Print"
-      : realColumn === "web"
-        ? "Web"
-        : realColumn === "automation"
-          ? "Automation"
-          : "Ads");
+    (isParent
+      ? "Ads"
+      : realColumn === "print"
+        ? "Print"
+        : realColumn === "web"
+          ? "Web"
+          : realColumn === "automation"
+            ? "Automation"
+            : "Ads");
 
   return {
     id: buildPinId(pins, realColumn),
@@ -129,8 +227,8 @@ export function createDraftPin(pins: Pin[], options?: CreateDraftOptions): Pin {
     higher: "₹0",
     PM: false,
     status,
-    tags: [subtype],
-    displayTags: [subtype.toUpperCase()],
+    tags: isParent ? ["Parent"] : [subtype],
+    displayTags: isParent ? ["PARENT"] : [subtype.toUpperCase()],
     notes: "",
     expectedClient: options?.expectedClient || [],
     selling: options?.selling || [],
@@ -142,9 +240,10 @@ export function createDraftPin(pins: Pin[], options?: CreateDraftOptions): Pin {
     angles: 0,
     executions: 0,
     assets: 0,
-    formatAssets: { video: 0, image: 0, print: 0, web: 0 },
+    formatAssets: { video: 0, image: 0, print: 0, web: 0, automation: 0 },
+    formatPacks: {},
     stage: 1,
-    footerLabel: subtype,
+    footerLabel: isParent ? "Parent" : subtype,
   };
 }
 

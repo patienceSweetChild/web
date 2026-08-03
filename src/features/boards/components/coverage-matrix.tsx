@@ -4,6 +4,7 @@ import {
   MATRIX_BRANCH_COLS,
   MATRIX_PARENT_COL,
 } from "@/features/boards/config";
+import { isParentPin } from "@/features/pins/lib/pin-utils";
 import type { Pin } from "@/features/pins/types";
 
 export type MatrixBoardCol = {
@@ -150,8 +151,10 @@ export function CoverageMatrix({
 
   function pinsFor(rowId: string, branchId: string) {
     const all = pinsByRow.get(rowId) || [];
-    if (branchId === MATRIX_PARENT_COL.id) return all;
-    return all.filter((p) => String(p.branch) === branchId);
+    // Board Parent column: parent concepts only. Branch columns: never parents
+    // (parent ids belong on Board Parent, not duplicated into Ads/Web/Automation).
+    if (branchId === MATRIX_PARENT_COL.id) return all.filter(isParentPin);
+    return all.filter((p) => !isParentPin(p) && String(p.branch) === branchId);
   }
 
   return (

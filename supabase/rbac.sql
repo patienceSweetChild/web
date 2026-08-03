@@ -142,7 +142,8 @@ INSERT INTO role_board_permissions (role, board_id, can_view, can_create, can_ed
   ('viewer',      'clients',        TRUE, FALSE, FALSE, FALSE),
   ('viewer',      'sell-channels',  TRUE, FALSE, FALSE, FALSE),
   ('viewer',      'creative-packs', TRUE, FALSE, FALSE, FALSE),
-  ('viewer',      'problems',       FALSE,FALSE, FALSE, FALSE);
+  ('viewer',      'problems',       FALSE,FALSE, FALSE, FALSE)
+ON CONFLICT (role, board_id) DO NOTHING;
 
 -- ─────────────────────────────────────────────
 -- 4. CRM CLIENTS  (separate from pin expectedClient tags)
@@ -285,27 +286,7 @@ CREATE POLICY "profiles: read own and subtree"
     OR public.is_admin_or_above()
   );
 
--- Teammates on shared projects (e.g. TL sees Admin added to their project)
-DROP POLICY IF EXISTS "profiles: read project teammates" ON profiles;
-CREATE POLICY "profiles: read project teammates"
-  ON profiles FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1
-      FROM public.project_members me
-      JOIN public.project_members them
-        ON them.project_id = me.project_id
-      WHERE me.user_id = auth.uid()
-        AND them.user_id = profiles.id
-    )
-    OR EXISTS (
-      SELECT 1
-      FROM public.projects p
-      JOIN public.project_members pm ON pm.project_id = p.id
-      WHERE p.created_by = auth.uid()
-        AND pm.user_id = profiles.id
-    )
-  );
+-- Teammate profile visibility is created in projects.sql (needs project_members).
 
 -- Users can update their own non-sensitive fields
 CREATE POLICY "profiles: update own basic fields"

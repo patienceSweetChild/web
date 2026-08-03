@@ -12,7 +12,9 @@ import type { Pin, Problem } from "@/features/pins/types";
 
 export function ProblemsBoard() {
   const workspace = useBoardWorkspace("problems");
-  const { problems, pins, upsertPin, upsertProblem, catalogs } = usePinCatalog();
+  const { problems, upsertPin, upsertProblem, catalogs } = usePinCatalog();
+  // Exclude parent ids — they live only on Board Parent.
+  const pins = workspace.pins;
   const perms = useEffectiveBoardPermissions("problems");
   const [picker, setPicker] = useState<{
     mode: "pin" | "client";

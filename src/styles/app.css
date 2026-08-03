@@ -889,6 +889,8 @@ button, input { font-family: inherit; }
   box-shadow: 0 1px 1px rgba(9, 30, 66, .08);
   display: flex;
   flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
   transition: background .12s, box-shadow .12s, border-color .12s;
 }
 
@@ -1090,16 +1092,25 @@ button, input { font-family: inherit; }
 
 .card-footer {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   gap: 6px;
-  flex-wrap: wrap;
   margin-top: auto;
   padding-top: 4px;
+  min-width: 0;
 }
 
-.star { color: var(--jira-orange); font-size: 13px; }
+.card-footer-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
 
-.stages { display: flex; gap: 3px; }
+.star { color: var(--jira-orange); font-size: 13px; flex-shrink: 0; }
+
+.stages { display: flex; gap: 3px; flex-shrink: 0; }
 
 .stage {
   width: 16px;
@@ -1123,14 +1134,23 @@ button, input { font-family: inherit; }
 .footer-label {
   font-size: 11px;
   color: var(--jira-muted);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .pin-id {
-  margin-left: auto;
+  display: block;
+  width: 100%;
+  max-width: 100%;
   font-size: 11px;
   color: var(--jira-muted);
   font-weight: 600;
   text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ========== KANBAN ========== */
@@ -1362,11 +1382,11 @@ button, input { font-family: inherit; }
 }
 
 .dir-top {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 8px;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   margin-bottom: 8px;
+  min-width: 0;
 }
 
 .dir-id {
@@ -1375,14 +1395,30 @@ button, input { font-family: inherit; }
   color: var(--jira-blue);
   text-transform: uppercase;
   letter-spacing: .02em;
-  padding-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.dir-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .dir-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
   font-size: 13px;
   font-weight: 600;
   color: var(--jira-text);
   line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dir-branch {
@@ -1395,6 +1431,7 @@ button, input { font-family: inherit; }
   border: 1px solid var(--jira-border);
   padding: 3px 7px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .dir-clients-label {

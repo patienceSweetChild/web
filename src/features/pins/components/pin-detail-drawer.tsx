@@ -11,7 +11,10 @@ import {
 } from "@/features/pins/components/format-metrics-editor";
 import { usePinCatalog } from "@/features/pins/store/pin-catalog-provider";
 import {
+  buildFormatChildPins,
   columnToFormatKey,
+  isFormatChildPinId,
+  isParentPin,
   normalizedStatus,
   renderNotesMarkdown,
   resolvePinNotesMarkdown,
@@ -73,7 +76,7 @@ export function PinDetailDrawer({
   onDuplicate,
   readOnly = false,
 }: PinDetailDrawerProps) {
-  const { catalogs, problems, pins } = usePinCatalog();
+  const { catalogs, problems, pins, upsertPin, deletePin } = usePinCatalog();
   const [draft, setDraft] = useState<Pin | null>(null);
   const [picker, setPicker] = useState<TagCategory | null>(null);
   const [openFormats, setOpenFormats] = useState<Set<PackKey>>(new Set());
@@ -91,10 +94,10 @@ export function PinDetailDrawer({
     next.notes = resolvePinNotesMarkdown(next);
     setDraft(next);
     const initial = new Set<PackKey>();
-    const primary = columnToFormatKey(pin.column) as PackKey;
+    const primary = columnToFormatKey(pin.column);
     if (FORMAT_KEYS.includes(primary)) initial.add(primary);
     if (pin.formatAssets) {
-      (["video", "image", "print", "web"] as FormatKey[]).forEach((k) => {
+      (FORMAT_KEYS as FormatKey[]).forEach((k) => {
         const v = pin.formatAssets?.[k];
         const n = typeof v === "number" ? v : v?.assets;
         if (n && n > 0) initial.add(k);
@@ -191,35 +194,68 @@ export function PinDetailDrawer({
       footerLabel: draft.footerLabel || draft.subtype,
     };
 
+    // Board Parent creates must stay subtype Parent or they vanish from catalog.
+    if (boardId === "catalog" || isParentPin(draft)) {
+      next.subtype = "Parent";
+      next.tags = ["Parent"];
+      next.displayTags = ["PARENT"];
+      next.footerLabel = next.footerLabel && next.footerLabel !== draft.subtype
+        ? next.footerLabel
+        : "Parent";
+    }
+
+    const selectedFormats = parentStyle
+      ? (FORMAT_KEYS.filter((k) => openFormats.has(k)) as FormatKey[])
+      : [];
+
     if (parentStyle) {
-      const selected = FORMAT_KEYS.filter((k) => openFormats.has(k) && k !== "automation");
-      if (selected.length) {
+      if (selectedFormats.length) {
         const map: Record<string, Pin["column"]> = {
           video: "videos",
           image: "images",
           print: "print",
           web: "web",
+          automation: "automation",
         };
-        next.column = map[selected[0]] || next.column;
+        const primaryFormat = selectedFormats.find((k) => k !== "automation") || selectedFormats[0];
+        next.column = map[primaryFormat] || next.column;
       }
       next.hooks = 0;
       next.angles = 0;
       next.executions = 0;
       next.assets = 0;
-      selected.forEach((key) => {
-        next.hooks! += Number(next.formatPacks?.[key as FormatKey]?.hooks) || 0;
-        next.angles! += Number(next.formatPacks?.[key as FormatKey]?.angles) || 0;
-        next.executions! += Number(next.formatPacks?.[key as FormatKey]?.executions) || 0;
+      selectedFormats.forEach((key) => {
+        next.hooks! += Number(next.formatPacks?.[key]?.hooks) || 0;
+        next.angles! += Number(next.formatPacks?.[key]?.angles) || 0;
+        next.executions! += Number(next.formatPacks?.[key]?.executions) || 0;
         next.assets! +=
           Number(
-            typeof next.formatAssets?.[key as FormatKey] === "number"
-              ? next.formatAssets?.[key as FormatKey]
-              : next.formatPacks?.[key as FormatKey]?.assets
+            typeof next.formatAssets?.[key] === "number"
+              ? next.formatAssets?.[key]
+              : next.formatPacks?.[key]?.assets
           ) || 0;
       });
     }
 
     onSave(next);
+
+    // Parent pins: project each selected format onto Board Child (+ tag boards via tags).
+    if (isParentPin(next) || boardId === "catalog") {
+      const children = buildFormatChildPins(next, selectedFormats);
+      const keepIds = new Set(children.map((c) => c.id));
+      const orphans = pins.filter(
+        (p) => isFormatChildPinId(p.id, next.id) && !keepIds.has(p.id)
+      );
+      void (async () => {
+        for (const child of children) {
+          await upsertPin(child, { boardId });
+        }
+        for (const orphan of orphans) {
+          await deletePin(orphan.id, { boardId });
+        }
+      })();
+    }
+
     onClose();
   }
 
@@ -234,6 +270,7 @@ export function PinDetailDrawer({
     { cat: "creativePack", label: "CREATIVE PACK", color: "blue" },
     { cat: "fullCampaign", label: "FULL CAMPAIGN", color: "purple" },
     { cat: "talent", label: "TALENT REQUIREMENTS", color: "purple" },
+    { cat: "problems", label: "PROBLEMS", color: "blue" },
   ];
 
   const statusValue = normalizedStatus(draft);
@@ -362,6 +399,11 @@ export function PinDetailDrawer({
               color={color}
               values={tagsFor(cat)}
               options={optionsFor[cat]}
+              resolveLabel={
+                cat === "problems"
+                  ? (id) => problems.find((p) => p.id === id)?.title || id
+                  : undefined
+              }
               open={picker === cat}
               onToggleOpen={() => setPicker(picker === cat ? null : cat)}
               onAdd={(v) => {

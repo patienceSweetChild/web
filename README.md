@@ -43,13 +43,15 @@ Reusable building blocks: `PinCard`, `TagCategoryField`, `FormatPackEditor`, `Ka
 
 ## Supabase
 
-1. Run `supabase/schema.sql` in the SQL editor.
-2. Run `supabase/rbac.sql`, `supabase/projects.sql`, and related fix scripts as needed.
-3. Run `supabase/onboarding.sql` for Onboarding (client profile fields, shortlists, chat, `project_items`).
-4. Copy `.env.local.example` → `.env.local`.
-5. Set `GROQ_API_KEY` (and optional `GROQ_MODEL`) for Onboarding AI chat.
-6. `npm run seed` (needs service role key).
-7. Restart `npm run dev`.
+**New empty project:** follow [`supabase/BOOTSTRAP.md`](supabase/BOOTSTRAP.md).
+
+1. Run `supabase/bootstrap-workspace.sql` in the SQL editor (workspace + board tables).
+2. Run `supabase/flat-lay-schema.sql` (canonical flat-lay library).
+3. Copy `.env.local.example` → `.env.local` and set Supabase + `GROQ_API_KEY`.
+4. `npm run seed:flat-lay` (needs service role key; loads `data/flat_lay_*.json`).
+5. Restart `npm run dev`. Sign up, then set your profile `role` to `super_admin`.
+
+Legacy modular scripts (`schema.sql`, `rbac.sql`, …) remain for older databases. Prefer the bootstrap path above on a fresh DB.
 
 Workspace **Onboarding** is at `/onboarding` (visible to all signed-in roles).
 

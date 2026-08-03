@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import type { FormatKey, Pin } from "@/features/pins/types";
 import { primaryFormatKey } from "@/features/pins/lib/pin-utils";
 
-export type PackKey = FormatKey | "automation";
+export type PackKey = FormatKey;
 
 const FORMAT_KEYS: PackKey[] = ["video", "image", "print", "web", "automation"];
 const METRIC_ROLES = ["hooks", "angles", "executions", "assets"] as const;
@@ -42,24 +42,20 @@ function formatINR(n: number) {
   return "₹" + Number(n || 0).toLocaleString("en-IN");
 }
 
-function isStoredKey(key: PackKey): key is FormatKey {
-  return key !== "automation";
-}
-
 export function readFormatMetric(
   draft: Pin,
   key: PackKey,
   role: (typeof METRIC_ROLES)[number]
 ) {
   const packs = draft.formatPacks || {};
-  const pack = isStoredKey(key) ? packs[key] : undefined;
+  const pack = packs[key];
   if (pack && typeof pack[role] === "number") return pack[role] as number;
-  if (role === "assets" && isStoredKey(key)) {
+  if (role === "assets") {
     const fa = draft.formatAssets?.[key];
     if (typeof fa === "number") return fa;
     if (fa && typeof fa === "object") return fa.assets || 0;
   }
-  if (isStoredKey(key) && key === primaryFormatKey(String(draft.column))) {
+  if (key === primaryFormatKey(String(draft.column))) {
     return Number(draft[role]) || 0;
   }
   return 0;
@@ -71,9 +67,6 @@ export function applyFormatMetric(
   role: (typeof METRIC_ROLES)[number],
   value: number
 ): Pin {
-  if (!isStoredKey(key)) {
-    return draft;
-  }
   const formatPacks = { ...(draft.formatPacks || {}) };
   const current = {
     hooks: readFormatMetric(draft, key, "hooks"),

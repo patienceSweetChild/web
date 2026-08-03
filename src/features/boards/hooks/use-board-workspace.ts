@@ -7,6 +7,7 @@ import {
   duplicatePin,
   pinMatchesFilters,
   pinMatchesQuery,
+  pinsForBoard,
   type CreateDraftOptions,
 } from "@/features/pins/lib/pin-utils";
 import { usePinCatalog } from "@/features/pins/store/pin-catalog-provider";
@@ -15,24 +16,29 @@ import type { PinDetailMode } from "@/features/pins/components/pin-detail-drawer
 
 /** Shared workspace state for every board surface (search, filters, detail drawer). */
 export function useBoardWorkspace(boardId: BoardId) {
-  const { pins, upsertPin, ready } = usePinCatalog();
+  const { pins: catalogPins, upsertPin, ready } = usePinCatalog();
   const [query, setQuery] = useState("");
   const [filters, setFilters] = useState<PinFilterState>(emptyPinFilters());
   const [activePin, setActivePin] = useState<Pin | null>(null);
   const [detailMode, setDetailMode] = useState<PinDetailMode>("edit");
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  // Parent ids only on Board Parent; all other boards exclude them.
+  const pins = useMemo(() => pinsForBoard(boardId, catalogPins), [boardId, catalogPins]);
+
   const filtered = useMemo(
     () => pins.filter((p) => pinMatchesQuery(p, query) && pinMatchesFilters(p, filters)),
     [pins, query, filters]
   );
 
+  // Close drawer if an *existing* pin was removed from the catalog.
+  // Skip in create mode — drafts are not in `pins` until saved.
   useEffect(() => {
-    if (!activePin) return;
-    if (pins.some((p) => p.id === activePin.id)) return;
+    if (!activePin || detailMode === "create") return;
+    if (catalogPins.some((p) => p.id === activePin.id)) return;
     setDrawerOpen(false);
     setActivePin(null);
-  }, [pins, activePin]);
+  }, [catalogPins, activePin, detailMode]);
 
   const openPin = useCallback((pin: Pin, mode: PinDetailMode = "edit") => {
     setActivePin(pin);
@@ -42,16 +48,20 @@ export function useBoardWorkspace(boardId: BoardId) {
 
   const createPin = useCallback(
     (options?: CreateDraftOptions) => {
-      openPin(createDraftPin(pins, options), "create");
+      const draftOptions: CreateDraftOptions =
+        boardId === "catalog"
+          ? { ...options, subtype: options?.subtype || "Parent" }
+          : options || {};
+      openPin(createDraftPin(catalogPins, draftOptions), "create");
     },
-    [openPin, pins]
+    [openPin, catalogPins, boardId]
   );
 
   const onDuplicate = useCallback(
     (pin: Pin, format?: string) => {
-      openPin(duplicatePin(pins, pin, format), "create");
+      openPin(duplicatePin(catalogPins, pin, format), "create");
     },
-    [openPin, pins]
+    [openPin, catalogPins]
   );
 
   const onSave = useCallback(

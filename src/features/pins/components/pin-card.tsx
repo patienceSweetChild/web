@@ -138,14 +138,14 @@ export function PinCard({
       </div>
       <div className="stats">
         {variant === "formats" ? (
-          (["video", "image", "print", "web"] as const).map((key) => (
+          (["video", "image", "print", "web", "automation"] as const).map((key) => (
             <div
               key={key}
               className={`stat${key === primary ? " assets" : ""}`}
               data-format={key}
             >
               <span className="num">{counts[key] || 0}</span>
-              <span className="label">{key.toUpperCase()}</span>
+              <span className="label">{key === "automation" ? "AUTO" : key.toUpperCase()}</span>
             </div>
           ))
         ) : (
@@ -170,10 +170,14 @@ export function PinCard({
         )}
       </div>
       <div className="card-footer">
-        <span className="star">★</span>
-        <StageDots active={pin.stage || 1} />
-        <span className="footer-label">{pin.footerLabel || pin.subtype}</span>
-        <span className="pin-id">{pin.id}</span>
+        <div className="card-footer-meta">
+          <span className="star">★</span>
+          <StageDots active={pin.stage || 1} />
+          <span className="footer-label">{pin.footerLabel || pin.subtype}</span>
+        </div>
+        <span className="pin-id" title={pin.id}>
+          {pin.id}
+        </span>
       </div>
     </article>
   );
@@ -205,13 +209,19 @@ export function PinDirectoryRow({
       }}
     >
       <div className="dir-top">
-        <span className="dir-id">{pin.id}</span>
-        <h3 className="dir-name">{pin.name}</h3>
-        {showColumnChip || pin.showColumnChip ? (
-          <ColumnChip column={String(pin.column)} />
-        ) : (
-          <span className="dir-branch">{pin.branch || "—"}</span>
-        )}
+        <span className="dir-id" title={pin.id}>
+          {pin.id}
+        </span>
+        <div className="dir-title-row">
+          <h3 className="dir-name" title={pin.name}>
+            {pin.name}
+          </h3>
+          {showColumnChip || pin.showColumnChip ? (
+            <ColumnChip column={String(pin.column)} />
+          ) : (
+            <span className="dir-branch">{pin.branch || "—"}</span>
+          )}
+        </div>
       </div>
       <div className="dir-clients">
         <span className="dir-clients-label">Expected clients</span>

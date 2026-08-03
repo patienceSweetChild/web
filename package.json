@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "node scripts/seed.mjs"
+    "seed": "node scripts/seed.mjs",
+    "seed:flat-lay": "node scripts/seed-flat-lay.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

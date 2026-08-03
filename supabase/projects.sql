@@ -461,3 +461,28 @@ CREATE TRIGGER trg_notify_project_member_added
   AFTER INSERT ON project_members
   FOR EACH ROW
   EXECUTE FUNCTION public.notify_on_project_member_added();
+
+-- ─────────────────────────────────────────────
+-- 8. Profiles: read project teammates
+--    Must run AFTER project_members exists.
+-- ─────────────────────────────────────────────
+DROP POLICY IF EXISTS "profiles: read project teammates" ON profiles;
+CREATE POLICY "profiles: read project teammates"
+  ON profiles FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.project_members me
+      JOIN public.project_members them
+        ON them.project_id = me.project_id
+      WHERE me.user_id = auth.uid()
+        AND them.user_id = profiles.id
+    )
+    OR EXISTS (
+      SELECT 1
+      FROM public.projects p
+      JOIN public.project_members pm ON pm.project_id = p.id
+      WHERE p.created_by = auth.uid()
+        AND pm.user_id = profiles.id
+    )
+  );

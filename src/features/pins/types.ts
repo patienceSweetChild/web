@@ -2,7 +2,7 @@ export type PinColumn = "videos" | "images" | "print" | "web" | "automation";
 export type PinBranch = "Ads" | "Print" | "Web" | "Online Selling" | "Automation";
 export type PinStatus = "Published" | "Draft" | "Archived" | "Active";
 
-export type FormatKey = "video" | "image" | "print" | "web";
+export type FormatKey = "video" | "image" | "print" | "web" | "automation";
 
 export type FormatMetrics = {
   hooks: number;
