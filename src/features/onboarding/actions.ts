@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createProject } from "@/features/projects/actions";
+import { writeProjectLog } from "@/features/projects/write-project-log";
 import type {
   OnboardingDiagnosis,
   OnboardingChatMessage,
@@ -178,6 +179,15 @@ export async function checkoutOnboardingShortlist(clientId: string, clientName: 
   const { error } = await supabase.from("project_items").insert(rows);
   if (error) throw new Error(error.message);
 
+  await writeProjectLog(supabase, {
+    projectId: project.id as string,
+    actorId: user.id,
+    action: "pins_added",
+    title: `Added ${pinIds.length} pin${pinIds.length === 1 ? "" : "s"} at checkout`,
+    detail: pinIds.join(", "),
+    payload: { pin_ids: pinIds, source: "onboarding_checkout" },
+  });
+
   return { projectId: project.id as string };
 }
 
@@ -214,17 +224,35 @@ export async function addProjectItems(projectId: string, pinIds: string[]) {
   }));
   const { error } = await supabase.from("project_items").insert(rows);
   if (error) throw new Error(error.message);
+
+  await writeProjectLog(supabase, {
+    projectId,
+    actorId: user.id,
+    action: "pins_added",
+    title: `Added ${toAdd.length} pin${toAdd.length === 1 ? "" : "s"}`,
+    detail: toAdd.join(", "),
+    payload: { pin_ids: toAdd },
+  });
 }
 
 export async function removeProjectItems(projectId: string, pinIds: string[]) {
   if (!pinIds.length) return;
-  const { supabase } = await requireUser();
+  const { supabase, user } = await requireUser();
   const { error } = await supabase
     .from("project_items")
     .delete()
     .eq("project_id", projectId)
     .in("pin_id", pinIds);
   if (error) throw new Error(error.message);
+
+  await writeProjectLog(supabase, {
+    projectId,
+    actorId: user.id,
+    action: "pins_removed",
+    title: `Removed ${pinIds.length} pin${pinIds.length === 1 ? "" : "s"}`,
+    detail: pinIds.join(", "),
+    payload: { pin_ids: pinIds },
+  });
 }
 
 export async function ensureChatThread(clientId: string) {

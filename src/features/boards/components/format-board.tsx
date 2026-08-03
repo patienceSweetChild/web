@@ -2,9 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { BoardWorkspace } from "@/features/boards/components/board-workspace";
+import { BulkRemoveBar } from "@/features/boards/components/bulk-remove-bar";
+import { ConfirmRemoveModal } from "@/features/boards/components/confirm-remove-modal";
 import { KanbanColumn } from "@/features/boards/components/kanban-column";
 import { FlatLayView } from "@/features/boards/components/flat-lay-view";
 import { useBoardWorkspace } from "@/features/boards/hooks/use-board-workspace";
+import { usePinRemoval } from "@/features/boards/hooks/use-pin-removal";
 import { FORMAT_COLUMNS } from "@/features/boards/config";
 import { PinCard, PinDirectoryRow } from "@/features/pins/components/pin-card";
 import { isActive, isArchived, isDraft } from "@/features/pins/lib/pin-utils";
@@ -13,6 +16,7 @@ import { SearchAutocomplete } from "@/shared/ui";
 
 export function FormatBoard() {
   const workspace = useBoardWorkspace("formats");
+  const removal = usePinRemoval("formats", { mode: "archive" });
   const [branchFilter, setBranchFilter] = useState<Set<string>>(new Set());
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [flatLay, setFlatLay] = useState<string | null>(null);
@@ -85,6 +89,13 @@ export function FormatBoard() {
 
   return (
     <BoardWorkspace {...workspaceProps}>
+      {removal.canRemove ? (
+        <BulkRemoveBar
+          count={removal.selectedCount}
+          onClear={removal.clearSelection}
+          onRemove={removal.requestRemoveSelected}
+        />
+      ) : null}
       <div className="kanban">
         {visibleColumns.map((col) => {
           const pins = pinsForColumn(col.id);
@@ -154,6 +165,14 @@ export function FormatBoard() {
                       pin={{ ...pin, showColumnChip: true }}
                       onExpand={(p) => workspace.openPin(p)}
                       onDuplicate={workspace.onDuplicate}
+                      selectable={removal.canRemove && col.id !== "archived"}
+                      selected={removal.isSelected(pin.id)}
+                      onToggleSelect={removal.toggleSelect}
+                      onRemove={
+                        removal.canRemove && col.id !== "archived"
+                          ? removal.requestRemoveOne
+                          : undefined
+                      }
                     />
                   ))}
                   <button
@@ -174,6 +193,14 @@ export function FormatBoard() {
           );
         })}
       </div>
+      <ConfirmRemoveModal
+        open={removal.confirmOpen}
+        pins={removal.pendingPins}
+        mode={removal.mode}
+        pending={removal.busy}
+        onConfirm={() => void removal.confirmRemove()}
+        onClose={removal.cancelRemove}
+      />
     </BoardWorkspace>
   );
 }

@@ -7,6 +7,8 @@ export { BoardWorkspace } from "./components/board-workspace";
 export { BoardFilterBar } from "./components/board-filter-bar";
 export { KanbanColumn } from "./components/kanban-column";
 export { PinAttachModal } from "./components/pin-attach-modal";
+export { ConfirmRemoveModal } from "./components/confirm-remove-modal";
+export { BulkRemoveBar } from "./components/bulk-remove-bar";
 export { CatalogBoard } from "./components/catalog-board";
 export { FormatBoard } from "./components/format-board";
 export {

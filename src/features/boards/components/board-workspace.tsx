@@ -50,6 +50,10 @@ export function BoardWorkspace({
   const canViewBoard = perms.can_view;
   const canCreatePin = perms.can_create && canViewBoard;
   const canEditPin = perms.can_edit && canViewBoard;
+  /** Custom primary (e.g. + Problem / + Client) may be allowed for editors too. */
+  const showPrimary = onPrimaryAction
+    ? canViewBoard && (perms.can_create || perms.can_edit)
+    : canCreatePin;
 
   const readOnly = workspace.detailMode === "edit" ? !canEditPin : !canCreatePin;
 
@@ -89,6 +93,7 @@ export function BoardWorkspace({
       profile={profile}
       unreadCount={unreadCount}
       canCreatePin={canCreatePin}
+      showPrimary={showPrimary}
     >
       <BoardFilterBar
         boardId={boardId}

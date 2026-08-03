@@ -32,6 +32,75 @@ import { SearchAutocomplete } from "@/shared/ui";
 
 type ProjectsView = "list" | "pins" | "calendar";
 
+function isHandledByMe(project: ProjectWithRelations, userId: string) {
+  if (project.created_by === userId) return true;
+  return (project.members ?? []).some((m) => m.user_id === userId);
+}
+
+function ProjectListRow({ project: p }: { project: ProjectWithRelations }) {
+  const sc = PROJECT_STATUS_COLORS[p.status];
+  const start = projectCalendarStart(p);
+  const end = projectCalendarEnd(p);
+  const members = p.members ?? [];
+
+  return (
+    <div className="project-list-row">
+      <Link href={`/projects/${p.id}`} className="project-list-main">
+        <span className="project-list-name">{p.name}</span>
+        <span
+          className="list-status"
+          style={{
+            background: sc.bg,
+            color: sc.text,
+            borderColor: sc.border,
+          }}
+        >
+          {PROJECT_STATUS_LABELS[p.status]}
+        </span>
+      </Link>
+      <div className="project-list-meta">
+        {p.client ? (
+          <Link
+            href={`/clients/${p.client.id}?tab=projects`}
+            className="project-list-client"
+          >
+            {p.client.name}
+          </Link>
+        ) : (
+          <span className="project-list-client muted">—</span>
+        )}
+        <span className="project-list-dates">
+          {start === end ? start : `${start} → ${end}`}
+        </span>
+        <div className="project-list-members">
+          {members.slice(0, 5).map((m) => {
+            const u = m.user;
+            if (!u) return null;
+            const rc = ROLE_COLORS[u.role as UserRole] ?? ROLE_COLORS.viewer;
+            return (
+              <span
+                key={m.id}
+                className="project-member-chip"
+                title={`${u.full_name || u.email} · ${ROLE_LABELS[m.role_on_project]}`}
+                style={{
+                  background: rc.bg,
+                  color: rc.text,
+                  borderColor: rc.border,
+                }}
+              >
+                {(u.full_name || u.email)[0].toUpperCase()}
+              </span>
+            );
+          })}
+          {members.length > 5 && (
+            <span className="project-member-more">+{members.length - 5}</span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ProjectsPage({
   myProfile,
   projects,
@@ -44,7 +113,7 @@ export function ProjectsPage({
   allUsers: Profile[];
 }) {
   const router = useRouter();
-  const [view, setView] = useState<ProjectsView>("list");
+  const [view, setView] = useState<ProjectsView>("pins");
   const [period, setPeriod] = useState<MetricsPeriod>(() => currentMetricsPeriod());
   const [search, setSearch] = useState("");
   const [showCreate, setShowCreate] = useState(false);
@@ -70,6 +139,16 @@ export function ProjectsPage({
         (p.client?.name.toLowerCase().includes(q) ?? false)
     );
   }, [projects, view, period, search]);
+
+  const { handledByMe, handledByCompany } = useMemo(() => {
+    const mine: ProjectWithRelations[] = [];
+    const company: ProjectWithRelations[] = [];
+    for (const p of filtered) {
+      if (isHandledByMe(p, myProfile.id)) mine.push(p);
+      else company.push(p);
+    }
+    return { handledByMe: mine, handledByCompany: company };
+  }, [filtered, myProfile.id]);
 
   function handleCreate(payload: CreateProjectPayload) {
     startTransition(async () => {
@@ -179,14 +258,44 @@ export function ProjectsPage({
               Projects for <strong>{formatPeriodTitle(period)}</strong>
             </div>
             {filtered.length === 0 ? (
-              <div className="empty-state">
-                No projects in this period.
-              </div>
+              <div className="empty-state">No projects in this period.</div>
             ) : (
-              <div className="pin-grid">
-                {filtered.map((p) => (
-                  <ProjectPinCard key={p.id} project={p} />
-                ))}
+              <div className="project-scope-columns">
+                <section className="project-scope-section" aria-label="Handled by me">
+                  <header className="project-scope-head">
+                    <h2 className="project-scope-title">Handled by me</h2>
+                    <span className="project-scope-count">{handledByMe.length}</span>
+                  </header>
+                  {handledByMe.length === 0 ? (
+                    <div className="project-scope-empty">None assigned to you</div>
+                  ) : (
+                    <div className="pin-grid">
+                      {handledByMe.map((p) => (
+                        <ProjectPinCard key={p.id} project={p} />
+                      ))}
+                    </div>
+                  )}
+                </section>
+                <section
+                  className="project-scope-section"
+                  aria-label="Handled by company"
+                >
+                  <header className="project-scope-head">
+                    <h2 className="project-scope-title">Handled by company</h2>
+                    <span className="project-scope-count">
+                      {handledByCompany.length}
+                    </span>
+                  </header>
+                  {handledByCompany.length === 0 ? (
+                    <div className="project-scope-empty">No other projects</div>
+                  ) : (
+                    <div className="pin-grid">
+                      {handledByCompany.map((p) => (
+                        <ProjectPinCard key={p.id} project={p} />
+                      ))}
+                    </div>
+                  )}
+                </section>
               </div>
             )}
           </>
@@ -203,76 +312,42 @@ export function ProjectsPage({
                   : "No matching projects."}
               </div>
             ) : (
-              <div className="project-list">
-                {filtered.map((p) => {
-                  const sc = PROJECT_STATUS_COLORS[p.status];
-                  const start = projectCalendarStart(p);
-                  const end = projectCalendarEnd(p);
-                  const members = p.members ?? [];
-                  return (
-                    <div key={p.id} className="project-list-row">
-                      <Link
-                        href={`/projects/${p.id}`}
-                        className="project-list-main"
-                      >
-                        <span className="project-list-name">{p.name}</span>
-                        <span
-                          className="list-status"
-                          style={{
-                            background: sc.bg,
-                            color: sc.text,
-                            borderColor: sc.border,
-                          }}
-                        >
-                          {PROJECT_STATUS_LABELS[p.status]}
-                        </span>
-                      </Link>
-                      <div className="project-list-meta">
-                        {p.client ? (
-                          <Link
-                            href={`/clients/${p.client.id}?tab=projects`}
-                            className="project-list-client"
-                          >
-                            {p.client.name}
-                          </Link>
-                        ) : (
-                          <span className="project-list-client muted">—</span>
-                        )}
-                        <span className="project-list-dates">
-                          {start === end ? start : `${start} → ${end}`}
-                        </span>
-                        <div className="project-list-members">
-                          {members.slice(0, 5).map((m) => {
-                            const u = m.user;
-                            if (!u) return null;
-                            const rc =
-                              ROLE_COLORS[u.role as UserRole] ??
-                              ROLE_COLORS.viewer;
-                            return (
-                              <span
-                                key={m.id}
-                                className="project-member-chip"
-                                title={`${u.full_name || u.email} · ${ROLE_LABELS[m.role_on_project]}`}
-                                style={{
-                                  background: rc.bg,
-                                  color: rc.text,
-                                  borderColor: rc.border,
-                                }}
-                              >
-                                {(u.full_name || u.email)[0].toUpperCase()}
-                              </span>
-                            );
-                          })}
-                          {members.length > 5 && (
-                            <span className="project-member-more">
-                              +{members.length - 5}
-                            </span>
-                          )}
-                        </div>
-                      </div>
+              <div className="project-scope-columns">
+                <section className="project-scope-section" aria-label="Handled by me">
+                  <header className="project-scope-head">
+                    <h2 className="project-scope-title">Handled by me</h2>
+                    <span className="project-scope-count">{handledByMe.length}</span>
+                  </header>
+                  {handledByMe.length === 0 ? (
+                    <div className="project-scope-empty">None assigned to you</div>
+                  ) : (
+                    <div className="project-list">
+                      {handledByMe.map((p) => (
+                        <ProjectListRow key={p.id} project={p} />
+                      ))}
                     </div>
-                  );
-                })}
+                  )}
+                </section>
+                <section
+                  className="project-scope-section"
+                  aria-label="Handled by company"
+                >
+                  <header className="project-scope-head">
+                    <h2 className="project-scope-title">Handled by company</h2>
+                    <span className="project-scope-count">
+                      {handledByCompany.length}
+                    </span>
+                  </header>
+                  {handledByCompany.length === 0 ? (
+                    <div className="project-scope-empty">No other projects</div>
+                  ) : (
+                    <div className="project-list">
+                      {handledByCompany.map((p) => (
+                        <ProjectListRow key={p.id} project={p} />
+                      ))}
+                    </div>
+                  )}
+                </section>
               </div>
             )}
           </>

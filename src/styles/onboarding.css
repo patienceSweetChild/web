@@ -693,6 +693,16 @@
   overflow: auto;
 }
 
+/* Project detail: show all pin cards; scroll the page instead of clipping columns. */
+.ob-pins-board.is-expanded .ob-kanban-col {
+  overflow: visible;
+}
+
+.ob-pins-board.is-expanded .ob-kanban-col-body {
+  max-height: none;
+  overflow: visible;
+}
+
 .ob-kanban-empty {
   font-size: 12px;
   color: #6b778c;

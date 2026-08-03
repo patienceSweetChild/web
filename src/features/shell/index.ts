@@ -1,6 +1,10 @@
 export { AppShell } from "./app-shell";
 export { WorkspaceShell } from "./workspace-shell";
 export { AppNavSidebar, BoardsNavSection } from "./app-nav-sidebar";
+export { GlobalRail } from "./global-rail";
+export { NotificationBell } from "./notification-bell";
 export { PageBreadcrumb, type Crumb } from "./page-breadcrumb";
 export { RailQuickActions } from "./rail-quick-actions";
 export { WorkspaceRail } from "./workspace-rail";
+export { useShellSidebars } from "./use-shell-sidebars";
+export { getWorkspacePageDescription } from "./workspace-page-descriptions";

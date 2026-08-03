@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import type { ProjectMember, ProjectStatus, ProjectWithRelations } from './types';
+import type { ProjectLog } from './log-types';
 
 const PROJECT_SELECT = `
   *,
@@ -58,4 +59,22 @@ export async function getProjectMembers(projectId: string): Promise<ProjectMembe
     .eq('project_id', projectId)
     .order('created_at', { ascending: true });
   return (data ?? []) as ProjectMember[];
+}
+
+export async function listProjectLogs(projectId: string): Promise<ProjectLog[]> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('project_logs')
+    .select(`
+      *,
+      actor:profiles!project_logs_actor_id_fkey(id,full_name,email,role,avatar_url)
+    `)
+    .eq('project_id', projectId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('[listProjectLogs]', error.message);
+    return [];
+  }
+  return (data ?? []) as ProjectLog[];
 }

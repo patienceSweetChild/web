@@ -51,3 +51,5 @@ next-env.d.ts
 .cursor/
 
 Report.md
+notes.md
+/data

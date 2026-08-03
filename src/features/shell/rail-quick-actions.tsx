@@ -11,16 +11,18 @@ function focusPageSearch() {
   el.select?.();
 }
 
-/** Search + Create actions on the dark rail (labels expand on rail hover). */
+/** Search + Create actions on the dark workspace sidebar. */
 export function RailQuickActions({
   onCreate,
   canCreate = false,
   createHref = "/boards/catalog",
+  createLabel = "Create pin",
 }: {
   onCreate?: () => void;
   canCreate?: boolean;
   /** Used when canCreate but no onCreate handler (e.g. workspace pages). */
   createHref?: string;
+  createLabel?: string;
 }) {
   const showCreate = canCreate || Boolean(onCreate);
 
@@ -45,25 +47,25 @@ export function RailQuickActions({
             type="button"
             className="rail-nav-item"
             onClick={onCreate}
-            title="Create pin"
-            aria-label="Create pin"
+            title={createLabel}
+            aria-label={createLabel}
           >
             <span className="rail-nav-ico" aria-hidden>
               +
             </span>
-            <span className="rail-nav-label">Create pin</span>
+            <span className="rail-nav-label">{createLabel}</span>
           </button>
         ) : (
           <Link
             href={createHref}
             className="rail-nav-item"
-            title="Create pin"
-            aria-label="Create pin"
+            title={createLabel}
+            aria-label={createLabel}
           >
             <span className="rail-nav-ico" aria-hidden>
               +
             </span>
-            <span className="rail-nav-label">Create pin</span>
+            <span className="rail-nav-label">{createLabel}</span>
           </Link>
         ))}
     </div>

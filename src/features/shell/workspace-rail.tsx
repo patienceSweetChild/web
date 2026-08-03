@@ -44,8 +44,8 @@ const WORKSPACE_ITEMS: WorkspaceItem[] = [
   },
   {
     href: "/notifications",
-    label: "Notifications",
-    icon: "🔔",
+    label: "Pending",
+    icon: "⌛",
     match: (p) => p.startsWith("/notifications"),
     visible: (role) =>
       role === "super_admin" ||
@@ -69,7 +69,7 @@ const WORKSPACE_ITEMS: WorkspaceItem[] = [
   },
 ];
 
-/** Dark-rail workspace icons; hover expands labels in a flyout panel. */
+/** Workspace nav links for the dark sidebar (labels hide when rail is collapsed). */
 export function WorkspaceRail({
   profile,
   unreadCount = 0,

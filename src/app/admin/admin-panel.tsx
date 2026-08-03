@@ -18,8 +18,10 @@ import {
 } from "@/features/users/components/user-board-access-table";
 import { useUser } from "@/features/users/user-provider";
 import { BoardsNavSection } from "@/features/shell/app-nav-sidebar";
+import { GlobalRail } from "@/features/shell/global-rail";
+import { NotificationBell } from "@/features/shell/notification-bell";
 import { PageBreadcrumb } from "@/features/shell/page-breadcrumb";
-import { WorkspaceRail } from "@/features/shell/workspace-rail";
+import { useShellSidebars } from "@/features/shell/use-shell-sidebars";
 import { formatDate } from "@/lib/format-date";
 import { SearchAutocomplete } from "@/shared/ui";
 
@@ -82,6 +84,12 @@ export function AdminPanel({
 }) {
   const router = useRouter();
   const { profile: ctxProfile, unreadCount } = useUser();
+  const {
+    workspaceCollapsed,
+    libraryCollapsed,
+    toggleWorkspace,
+    toggleLibrary,
+  } = useShellSidebars();
   const isSA = myProfile.role === 'super_admin';
   const [activeTab, setActiveTab] = useState<'users' | 'boards'>('users');
   const [detailTab, setDetailTab] = useState<DetailTab>('info');
@@ -158,21 +166,48 @@ export function AdminPanel({
   }
 
   return (
-    <div className="app" data-board-id="admin">
-      <aside className="rail" aria-label="Global">
-        <Link className="rail-logo" href="/boards/catalog" title="OAS">O</Link>
-        <WorkspaceRail profile={ctxProfile ?? myProfile} unreadCount={unreadCount} />
-        <div className="rail-spacer" />
-        <Link className="rail-btn" href="/profile" title="Profile">
-          <span className="rail-avatar">
-            {((ctxProfile?.full_name || ctxProfile?.email) ?? 'A')[0].toUpperCase()}
-          </span>
-        </Link>
-      </aside>
+    <div
+      className="app"
+      data-board-id="admin"
+      data-rail-collapsed={workspaceCollapsed ? "true" : "false"}
+      data-sidebar-collapsed={libraryCollapsed ? "true" : "false"}
+    >
+      <GlobalRail
+        profile={ctxProfile ?? myProfile}
+        unreadCount={unreadCount}
+        collapsed={workspaceCollapsed}
+        onToggleCollapse={toggleWorkspace}
+      />
 
-      <aside className="sidebar admin-sidebar">
+      <aside
+        className={`sidebar admin-sidebar${libraryCollapsed ? " is-collapsed" : ""}`}
+        aria-label="Admin"
+      >
+        {libraryCollapsed ? (
+          <button
+            type="button"
+            className="sidebar-collapse-btn sidebar-expand-only"
+            onClick={toggleLibrary}
+            aria-expanded={false}
+            aria-label="Expand admin sidebar"
+            title="Expand sidebar"
+          >
+            »
+          </button>
+        ) : (
+          <>
         <div className="admin-sidebar-head">
           <span className="admin-sidebar-title">Admin Panel</span>
+          <button
+            type="button"
+            className="sidebar-collapse-btn"
+            onClick={toggleLibrary}
+            aria-expanded
+            aria-label="Collapse admin sidebar"
+            title="Collapse sidebar"
+          >
+            «
+          </button>
         </div>
         <div className="admin-boards-nav">
           <BoardsNavSection />
@@ -231,6 +266,8 @@ export function AdminPanel({
             </div>
           </>
         )}
+          </>
+        )}
       </aside>
 
       <div className="main">
@@ -250,6 +287,12 @@ export function AdminPanel({
             <h1 className="page-title">
               {activeTab === "users" ? "User Management" : "Board Permissions"}
             </h1>
+            <p className="page-description">
+              Admin tools assigned to you
+            </p>
+          </div>
+          <div className="top-actions">
+            <NotificationBell />
           </div>
         </header>
 

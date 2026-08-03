@@ -49,12 +49,12 @@ export function NotificationsPage({
 
   return (
     <WorkspaceShell
-      title="Notifications"
+      title="Pending"
       crumbs={[
         { label: "Boards", href: "/boards/catalog" },
-        { label: "Notifications" },
+        { label: "Pending" },
       ]}
-      projectType="Notifications"
+      projectType="Pending"
       profile={myProfile}
       topExtra={
         <>

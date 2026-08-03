@@ -102,6 +102,7 @@ export function ProjectOverviewPins({
         selectedIds={selectedIds}
         onToggleSelect={canEdit ? toggleSelect : undefined}
         onRemove={canEdit ? removeOne : undefined}
+        expandColumns
         emptyLabel="No pins on this project yet. Add pins below or checkout from Onboarding."
         actions={
           canEdit ? (

@@ -5,9 +5,11 @@ import type { BoardId } from "@/features/pins/types";
 import type { UserRole, Profile } from "@/features/users/types";
 import { ROLE_LABELS, ROLE_COLORS } from "@/features/users/types";
 import { AppNavSidebar } from "./app-nav-sidebar";
+import { GlobalRail } from "./global-rail";
+import { NotificationBell } from "./notification-bell";
 import { PageBreadcrumb, type Crumb } from "./page-breadcrumb";
 import { RailQuickActions } from "./rail-quick-actions";
-import { WorkspaceRail } from "./workspace-rail";
+import { useShellSidebars } from "./use-shell-sidebars";
 
 export function AppShell({
   title,
@@ -21,6 +23,7 @@ export function AppShell({
   profile,
   unreadCount = 0,
   canCreatePin = false,
+  showPrimary,
 }: {
   title: string;
   crumbs?: Crumb[];
@@ -33,37 +36,53 @@ export function AppShell({
   profile?: Profile | null;
   unreadCount?: number;
   canCreatePin?: boolean;
+  /** When set, controls topbar primary visibility separately from rail create. */
+  showPrimary?: boolean;
 }) {
   const primary = onPrimaryAction || onCreatePin;
+  const showTopPrimary = showPrimary ?? canCreatePin;
   const role = profile?.role as UserRole | undefined;
   const roleColors = role ? ROLE_COLORS[role] : ROLE_COLORS.viewer;
+  const createLabel = boardId === "sell-channels" ? "Create pack" : "Create pin";
+  const resolvedPrimaryLabel =
+    primaryLabel !== "+ Pin"
+      ? primaryLabel
+      : boardId === "sell-channels"
+        ? "+ Pack"
+        : primaryLabel;
+  const {
+    workspaceCollapsed,
+    libraryCollapsed,
+    toggleWorkspace,
+    toggleLibrary,
+  } = useShellSidebars();
 
   return (
-    <div className="app" data-board-id={boardId}>
-      <aside className="rail" aria-label="Global">
-        <Link className="rail-logo" href="/boards/catalog" title="OAS">
-          O
-        </Link>
+    <div
+      className="app"
+      data-board-id={boardId}
+      data-rail-collapsed={workspaceCollapsed ? "true" : "false"}
+      data-sidebar-collapsed={libraryCollapsed ? "true" : "false"}
+    >
+      <GlobalRail
+        profile={profile}
+        unreadCount={unreadCount}
+        collapsed={workspaceCollapsed}
+        onToggleCollapse={toggleWorkspace}
+      >
         <RailQuickActions
           canCreate={canCreatePin}
           onCreate={canCreatePin ? onCreatePin : undefined}
+          createLabel={createLabel}
         />
-        <WorkspaceRail profile={profile} unreadCount={unreadCount} />
-        <div className="rail-spacer" />
-        {profile ? (
-          <Link className="rail-btn" href="/profile" title="My profile">
-            <span className="rail-avatar">
-              {(profile.full_name || profile.email)[0].toUpperCase()}
-            </span>
-          </Link>
-        ) : (
-          <Link className="rail-btn" href="/login" title="Sign in">
-            ?
-          </Link>
-        )}
-      </aside>
+      </GlobalRail>
 
-      <AppNavSidebar profile={profile} unreadCount={unreadCount} />
+      <AppNavSidebar
+        profile={profile}
+        unreadCount={unreadCount}
+        collapsed={libraryCollapsed}
+        onToggleCollapse={toggleLibrary}
+      />
 
       <div className="main">
         <header className="topbar">
@@ -72,6 +91,7 @@ export function AppShell({
             <h1 className="page-title">{title}</h1>
           </div>
           <div className="top-actions">
+            <NotificationBell />
             {profile ? (
               <Link href="/profile" className="user-chip-link">
                 <span
@@ -99,9 +119,9 @@ export function AppShell({
 
             {topExtra}
 
-            {canCreatePin && (
+            {showTopPrimary && primary && (
               <button type="button" className="btn btn-primary" onClick={primary}>
-                {primaryLabel}
+                {resolvedPrimaryLabel}
               </button>
             )}
 

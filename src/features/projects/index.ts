@@ -1,5 +1,7 @@
 export * from './types';
+export * from './log-types';
 export * from './actions';
+export { listProjects, getProjectById, listProjectsForClient, getProjectMembers, listProjectLogs } from './queries';
 export { ProjectPinCard } from './components/project-pin-card';
 export { ProjectDayCalendar } from './components/project-day-calendar';
 export { CreateProjectModal } from './components/create-project-modal';

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { emptyPinFilters, type PinFilterState } from "@/features/pins/lib/filters";
 import {
   createDraftPin,
@@ -26,6 +26,13 @@ export function useBoardWorkspace(boardId: BoardId) {
     () => pins.filter((p) => pinMatchesQuery(p, query) && pinMatchesFilters(p, filters)),
     [pins, query, filters]
   );
+
+  useEffect(() => {
+    if (!activePin) return;
+    if (pins.some((p) => p.id === activePin.id)) return;
+    setDrawerOpen(false);
+    setActivePin(null);
+  }, [pins, activePin]);
 
   const openPin = useCallback((pin: Pin, mode: PinDetailMode = "edit") => {
     setActivePin(pin);

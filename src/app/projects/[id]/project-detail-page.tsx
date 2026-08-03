@@ -29,21 +29,45 @@ import { WorkspaceShell } from "@/features/shell";
 import { formatDateTime } from "@/lib/format-date";
 import { ProjectOverviewPins } from "@/features/onboarding/components/project-overview-pins";
 import type { ProjectItem } from "@/features/onboarding/types";
+import type { ProjectLog } from "@/features/projects/log-types";
 
-type Tab = "overview" | "members" | "notes";
+type Tab = "overview" | "members" | "notes" | "logs";
 
 const MEMBER_SECTIONS: ProjectMemberRole[] = ["admin", "team_leader", "sales"];
+
+function logDotClass(action: string) {
+  if (action === "project_created") return "timeline-dot-create";
+  if (action.startsWith("member_")) return "timeline-dot-assign";
+  if (action.startsWith("pins_")) return "timeline-dot-pin";
+  if (action === "status_changed") return "timeline-dot-status";
+  return "";
+}
+
+function logDotLabel(action: string) {
+  if (action === "project_created") return "+";
+  if (action === "member_added") return "＋";
+  if (action === "member_removed") return "−";
+  if (action === "member_role_changed") return "↻";
+  if (action === "pins_added") return "▣";
+  if (action === "pins_removed") return "▢";
+  if (action === "status_changed") return "●";
+  if (action === "notes_updated") return "✎";
+  if (action === "dates_updated") return "▦";
+  return "·";
+}
 
 export function ProjectDetailPage({
   myProfile,
   project,
   allUsers,
   projectItems = [],
+  logs = [],
 }: {
   myProfile: Profile;
   project: ProjectWithRelations;
   allUsers: Profile[];
   projectItems?: ProjectItem[];
+  logs?: ProjectLog[];
 }) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("overview");
@@ -179,7 +203,7 @@ export function ProjectDetailPage({
         />
 
         <div className="detail-tabs">
-          {(["overview", "members", "notes"] as Tab[]).map((t) => (
+          {(["overview", "members", "notes", "logs"] as Tab[]).map((t) => (
             <button
               key={t}
               type="button"
@@ -190,7 +214,9 @@ export function ProjectDetailPage({
                 ? "Overview"
                 : t === "members"
                   ? `Members (${members.length})`
-                  : "Notes"}
+                  : t === "notes"
+                    ? "Notes"
+                    : `Logs (${logs.length})`}
             </button>
           ))}
         </div>
@@ -483,6 +509,61 @@ export function ProjectDetailPage({
                     Edit notes
                   </button>
                 )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === "logs" && (
+          <div className="detail-tab-content">
+            <p className="project-logs-intro">
+              Every step taken on this project — status, members, pins, dates, and notes.
+            </p>
+            {logs.length === 0 ? (
+              <div className="timeline">
+                <div className="timeline-item">
+                  <div className="timeline-dot timeline-dot-create">+</div>
+                  <div className="timeline-body">
+                    <div className="timeline-title">Project created</div>
+                    <div className="timeline-meta">
+                      {project.creator
+                        ? project.creator.full_name ||
+                          project.creator.email.split("@")[0]
+                        : "Someone"}{" "}
+                      · {formatDateTime(project.created_at)}
+                    </div>
+                    <div className="timeline-note">
+                      Older activity may be missing until the project logs table is enabled.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="timeline">
+                {logs.map((log) => {
+                  const actorName =
+                    log.actor?.full_name ||
+                    log.actor?.email?.split("@")[0] ||
+                    "Someone";
+                  return (
+                    <div key={log.id} className="timeline-item">
+                      <div
+                        className={`timeline-dot ${logDotClass(log.action)}`.trim()}
+                      >
+                        {logDotLabel(log.action)}
+                      </div>
+                      <div className="timeline-body">
+                        <div className="timeline-title">{log.title}</div>
+                        {log.detail ? (
+                          <div className="timeline-note">{log.detail}</div>
+                        ) : null}
+                        <div className="timeline-meta">
+                          {actorName} · {formatDateTime(log.created_at)}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

@@ -43,18 +43,26 @@ export function PinCard({
   variant = "metrics",
   onExpand,
   onDuplicate,
+  selectable = false,
+  selected = false,
+  onToggleSelect,
+  onRemove,
 }: {
   pin: Pin;
   variant?: PinCardVariant;
   onExpand: (pin: Pin) => void;
   onDuplicate: (pin: Pin) => void;
+  selectable?: boolean;
+  selected?: boolean;
+  onToggleSelect?: (pin: Pin) => void;
+  onRemove?: (pin: Pin) => void;
 }) {
   const counts = formatAssetCounts(pin);
   const primary = primaryFormatKey(String(pin.column));
 
   return (
     <article
-      className="board-card"
+      className={`board-card${selected ? " is-selected" : ""}`}
       data-pin-id={pin.id}
       tabIndex={0}
       role="button"
@@ -68,6 +76,20 @@ export function PinCard({
     >
       <div className="card-top">
         <div className="card-title-wrap">
+          {selectable ? (
+            <label
+              className="card-select"
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+            >
+              <input
+                type="checkbox"
+                checked={selected}
+                onChange={() => onToggleSelect?.(pin)}
+                aria-label={`Select ${pin.name}`}
+              />
+            </label>
+          ) : null}
           <h2 className="card-title">{pin.name}</h2>
           {pin.showColumnChip ? <ColumnChip column={String(pin.column)} /> : null}
         </div>
@@ -101,6 +123,18 @@ export function PinCard({
         >
           Duplicate
         </button>
+        {onRemove ? (
+          <button
+            type="button"
+            className="btn-remove"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove(pin);
+            }}
+          >
+            Remove
+          </button>
+        ) : null}
       </div>
       <div className="stats">
         {variant === "formats" ? (

@@ -15,6 +15,8 @@ export function PinsFormatBoard({
   title,
   subtitle,
   actions,
+  /** Grow columns with content (page scroll) instead of clipping inside 420px. */
+  expandColumns = false,
 }: {
   pins: Pin[];
   view: "kanban" | "list";
@@ -26,11 +28,12 @@ export function PinsFormatBoard({
   title?: string;
   subtitle?: string;
   actions?: React.ReactNode;
+  expandColumns?: boolean;
 }) {
   const groups = groupPinsByFormat(pins);
 
   return (
-    <div className="ob-pins-board">
+    <div className={`ob-pins-board${expandColumns ? " is-expanded" : ""}`}>
       <div className="ob-pins-board-header">
         <div>
           {title && <h3 className="ob-section-title">{title}</h3>}

@@ -260,7 +260,13 @@ export function PinDetailDrawer({
             <div className="state-actions">
               {!readOnly && (
                 <button type="button" className="btn-state save" onClick={handleSave}>
-                  {mode === "create" ? "Create pin" : "Save"}
+                  {mode === "create"
+                    ? boardId === "catalog"
+                      ? "Create Parent Pin"
+                      : boardId === "sell-channels"
+                        ? "Create pack"
+                        : "Create pin"
+                    : "Save"}
                 </button>
               )}
               {readOnly && (
@@ -278,14 +284,14 @@ export function PinDetailDrawer({
           <div className="panel-header">
             <div className="panel-title-wrap">
               <label className="field-label" htmlFor="panelTitleInput">
-                Pin name
+                {boardId === "sell-channels" ? "Pack name" : "Pin name"}
               </label>
               <input
                 id="panelTitleInput"
                 className="panel-title-input"
                 value={draft.name}
                 onChange={(e) => update("name", e.target.value)}
-                placeholder="Pin name"
+                placeholder={boardId === "sell-channels" ? "Pack name" : "Pin name"}
               />
             </div>
           </div>
@@ -432,7 +438,9 @@ export function PinDetailDrawer({
                   type="button"
                   onClick={() => handleDuplicate(action.format)}
                 >
-                  {action.label}
+                  {boardId === "sell-channels" && action.label === "Duplicate Pin"
+                    ? "Duplicate Pack"
+                    : action.label}
                 </button>
               ))}
             </div>

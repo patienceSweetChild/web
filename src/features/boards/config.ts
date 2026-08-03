@@ -9,8 +9,8 @@ export const BOARD_NAV: {
   { href: "/boards/catalog", label: "Board Parent", icon: "▣", id: "catalog" },
   { href: "/boards/formats", label: "Board Child", icon: "▦", id: "formats" },
   { href: "/boards/clients", label: "Expected Client", icon: "◫", id: "clients" },
-  { href: "/boards/sell-channels", label: "Sell Channels", icon: "⇄", id: "sell-channels" },
   { href: "/boards/creative-packs", label: "Creative Pack", icon: "◈", id: "creative-packs" },
+  { href: "/boards/sell-channels", label: "Sell Channels", icon: "⇄", id: "sell-channels" },
   { href: "/boards/problems", label: "Problems", icon: "☰", id: "problems" },
 ];
 

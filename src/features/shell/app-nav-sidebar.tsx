@@ -29,14 +29,17 @@ export function BoardsNavSection() {
 }
 
 export function AppNavSidebar({
-  profile,
   projectType,
   sidebarExtra,
+  collapsed = false,
+  onToggleCollapse,
 }: {
   profile?: Profile | null;
   unreadCount?: number;
   projectType?: string;
   sidebarExtra?: React.ReactNode;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
   /** @deprecated Workspace moved to the dark rail; ignored. */
   forceBoardsCollapsed?: boolean;
 }) {
@@ -51,18 +54,48 @@ export function AppNavSidebar({
       : "Loading…");
 
   return (
-    <aside className="sidebar">
-      <div className="project-block">
-        <div className="project-avatar">OAS</div>
-        <div>
-          <div className="project-name">OAS Pin Library</div>
-          <div className="project-type">{typeLabel}</div>
-        </div>
-      </div>
+    <aside
+      className={`sidebar${collapsed ? " is-collapsed" : ""}`}
+      aria-label="Library"
+    >
+      {collapsed ? (
+        <button
+          type="button"
+          className="sidebar-collapse-btn sidebar-expand-only"
+          onClick={onToggleCollapse}
+          aria-expanded={false}
+          aria-label="Expand library sidebar"
+          title="Expand library"
+        >
+          »
+        </button>
+      ) : (
+        <>
+          <div className="project-block">
+            <div className="project-avatar">OAS</div>
+            <div className="project-block-text">
+              <div className="project-name">OAS Pin Library</div>
+              <div className="project-type">{typeLabel}</div>
+            </div>
+            {onToggleCollapse ? (
+              <button
+                type="button"
+                className="sidebar-collapse-btn"
+                onClick={onToggleCollapse}
+                aria-expanded
+                aria-label="Collapse library sidebar"
+                title="Collapse library"
+              >
+                «
+              </button>
+            ) : null}
+          </div>
 
-      <BoardsNavSection />
+          <BoardsNavSection />
 
-      {sidebarExtra}
+          {sidebarExtra}
+        </>
+      )}
     </aside>
   );
 }

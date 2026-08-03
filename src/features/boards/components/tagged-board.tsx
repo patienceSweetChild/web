@@ -2,11 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { BoardWorkspace } from "@/features/boards/components/board-workspace";
+import { BulkRemoveBar } from "@/features/boards/components/bulk-remove-bar";
+import { ConfirmRemoveModal } from "@/features/boards/components/confirm-remove-modal";
 import { CoverageMatrix } from "@/features/boards/components/coverage-matrix";
 import { FlatLayView } from "@/features/boards/components/flat-lay-view";
 import { KanbanColumn } from "@/features/boards/components/kanban-column";
 import { PinAttachModal } from "@/features/boards/components/pin-attach-modal";
 import { useBoardWorkspace } from "@/features/boards/hooks/use-board-workspace";
+import { usePinRemoval } from "@/features/boards/hooks/use-pin-removal";
 import {
   CLIENT_DISPLAY_LABELS,
   MATRIX_PARENT_COL,
@@ -44,6 +47,18 @@ type TaggedBoardProps = {
   clientColumnEditable?: boolean;
   /** Show + Existing in kanban columns (Sell / Creative). */
   kanbanExisting?: boolean;
+  /** Allow creating a new catalog tag (e.g. expected client). */
+  allowAddCatalog?: boolean;
+  /** Topbar / inline label when allowAddCatalog is on. */
+  addCatalogLabel?: string;
+  /** Placeholder for the inline add input. */
+  addCatalogPlaceholder?: string;
+  /** Topbar create button label (defaults to AppShell "+ Pin"). */
+  createPrimaryLabel?: string;
+  /** Kanban result count label (defaults to "pins"). */
+  kanbanResultLabel?: string;
+  /** Singular entity word for remove confirm copy ("pin" | "pack"). */
+  removeEntityLabel?: string;
 };
 
 function pinMatchesTag(pin: Pin, field: PinTagField, tag: string) {
@@ -67,10 +82,21 @@ export function TaggedBoard({
   showClientColumn = false,
   clientColumnEditable = false,
   kanbanExisting = false,
+  allowAddCatalog = false,
+  addCatalogLabel = "+ Category",
+  addCatalogPlaceholder = "Category name",
+  createPrimaryLabel,
+  kanbanResultLabel = "pins",
+  removeEntityLabel = "pin",
 }: TaggedBoardProps) {
   const workspace = useBoardWorkspace(boardId);
-  const { catalogs, upsertPin } = usePinCatalog();
+  const { catalogs, upsertPin, setCatalog } = usePinCatalog();
   const perms = useEffectiveBoardPermissions(boardId);
+  const removal = usePinRemoval(boardId, {
+    mode: "untag",
+    pinField,
+    entityLabel: removeEntityLabel,
+  });
   const [view, setView] = useState<"kanban" | "list">("kanban");
   const [picker, setPicker] = useState<{ tag: string; branch: string } | null>(null);
   const [pickerQuery, setPickerQuery] = useState("");
@@ -79,6 +105,8 @@ export function TaggedBoard({
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [branchFilter, setBranchFilter] = useState<Set<string>>(new Set());
   const [flatLay, setFlatLay] = useState<string | null>(null);
+  const [addingCatalog, setAddingCatalog] = useState(false);
+  const [newCatalogName, setNewCatalogName] = useState("");
 
   const tags = catalogs[catalogKey];
 
@@ -299,6 +327,21 @@ export function TaggedBoard({
     });
   }
 
+  async function addCatalogEntry() {
+    if (!allowAddCatalog) return;
+    if (!perms.can_create && !perms.can_edit) return;
+    const name = newCatalogName.trim();
+    if (!name) return;
+    if (tags.some((t) => t.toLowerCase() === name.toLowerCase())) {
+      setNewCatalogName("");
+      setAddingCatalog(false);
+      return;
+    }
+    await setCatalog(catalogKey, [...tags, name]);
+    setNewCatalogName("");
+    setAddingCatalog(false);
+  }
+
   const viewToggle = (
     <div className="view-toggle" role="group" aria-label="Board view">
       <button
@@ -326,7 +369,7 @@ export function TaggedBoard({
 
   const resultCount =
     view === "list" ? listRows.length : new Set(kanbanPins.map((p) => p.id)).size;
-  const resultLabel = view === "list" ? listResultLabel : "pins";
+  const resultLabel = view === "list" ? listResultLabel : kanbanResultLabel;
 
   return (
     <BoardWorkspace
@@ -339,9 +382,58 @@ export function TaggedBoard({
       onBranchFilterChange={setBranchFilter}
       resultCount={resultCount}
       resultLabel={resultLabel}
+      primaryLabel={allowAddCatalog ? addCatalogLabel : createPrimaryLabel}
+      onPrimaryAction={
+        allowAddCatalog ? () => setAddingCatalog(true) : undefined
+      }
       intro={view === "list" ? <p className="problems-intro">{listIntro}</p> : null}
       contentClassName={view === "list" ? "content content-problems" : "content"}
     >
+      {allowAddCatalog && addingCatalog ? (
+        <div className="inline-add-row">
+          <input
+            className="search"
+            placeholder={addCatalogPlaceholder}
+            value={newCatalogName}
+            onChange={(e) => setNewCatalogName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") void addCatalogEntry();
+              if (e.key === "Escape") {
+                setAddingCatalog(false);
+                setNewCatalogName("");
+              }
+            }}
+            autoFocus
+          />
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={() => void addCatalogEntry()}
+          >
+            Add
+          </button>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => {
+              setAddingCatalog(false);
+              setNewCatalogName("");
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      ) : null}
+
+      {view === "kanban" && removal.canRemove ? (
+        <BulkRemoveBar
+          count={removal.selectedCount}
+          entityLabel={removeEntityLabel}
+          onClear={removal.clearSelection}
+          onRemove={removal.requestRemoveSelected}
+        />
+      ) : null}
+
       {view === "kanban" && flatLay && columnExpand ? (
         <div className="kanban is-flatlay">
           {(() => {
@@ -382,15 +474,27 @@ export function TaggedBoard({
                   })
                 }
               >
-                {pins.map((pin) => (
-                  <PinCard
-                    key={pin.id}
-                    pin={pin}
-                    variant="formats"
-                    onExpand={(p) => workspace.openPin(p)}
-                    onDuplicate={workspace.onDuplicate}
-                  />
-                ))}
+                {pins.map((pin) => {
+                  const canUntag =
+                    removal.canRemove && col.id !== UNASSIGNED_COL_ID;
+                  return (
+                    <PinCard
+                      key={pin.id}
+                      pin={pin}
+                      variant="formats"
+                      onExpand={(p) => workspace.openPin(p)}
+                      onDuplicate={workspace.onDuplicate}
+                      selectable={canUntag}
+                      selected={removal.isSelected(pin.id, col.id)}
+                      onToggleSelect={(p) => removal.toggleSelect(p, col.id)}
+                      onRemove={
+                        canUntag
+                          ? (p) => removal.requestRemoveOne(p, col.id)
+                          : undefined
+                      }
+                    />
+                  );
+                })}
                 <button
                   type="button"
                   className="kanban-create"
@@ -462,6 +566,16 @@ export function TaggedBoard({
           setClientPickerQuery("");
         }}
       />
+      <ConfirmRemoveModal
+        open={removal.confirmOpen}
+        pins={removal.pendingPins}
+        entityLabel={removeEntityLabel}
+        mode={removal.mode}
+        columnScoped={boardId === "clients"}
+        pending={removal.busy}
+        onConfirm={() => void removal.confirmRemove()}
+        onClose={removal.cancelRemove}
+      />
     </BoardWorkspace>
   );
 }
@@ -482,6 +596,9 @@ export function ClientsBoard() {
       columnExpand
       unassignedSubtitle="No expected client"
       showClientColumn={false}
+      allowAddCatalog
+      addCatalogLabel="+ Client"
+      addCatalogPlaceholder="Expected client name"
     />
   );
 }
@@ -496,11 +613,14 @@ export function SellChannelsBoard() {
       searchPlaceholder="Search sell channels"
       rowHeader="Sell Channel"
       listResultLabel="sell channels"
-      listIntro="Coverage by sell channel × branch. Every cell shows which Pins are tagged to that sell channel in that branch."
+      listIntro="Coverage by sell channel × branch. Every cell shows which packs are tagged to that sell channel in that branch."
       matrixClassName="sell-list"
       showClientColumn
       clientColumnEditable
       kanbanExisting
+      createPrimaryLabel="+ Pack"
+      kanbanResultLabel="packs"
+      removeEntityLabel="pack"
     />
   );
 }

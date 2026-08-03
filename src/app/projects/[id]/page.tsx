@@ -1,5 +1,5 @@
 import { getMyProfile, getAllProfiles } from "@/features/users";
-import { getProjectById } from "@/features/projects/queries";
+import { getProjectById, listProjectLogs } from "@/features/projects/queries";
 import { getProjectItems } from "@/features/onboarding/queries";
 import { redirect } from "next/navigation";
 import { ProjectDetailPage } from "./project-detail-page";
@@ -18,9 +18,10 @@ export default async function Page({
   if (!myProfile) redirect("/login");
   if (!project) redirect("/projects");
 
-  const [allUsers, projectItems] = await Promise.all([
+  const [allUsers, projectItems, logs] = await Promise.all([
     getAllProfiles().catch(() => []),
     getProjectItems(id).catch(() => []),
+    listProjectLogs(id).catch(() => []),
   ]);
 
   return (
@@ -29,6 +30,7 @@ export default async function Page({
       project={project}
       allUsers={allUsers}
       projectItems={projectItems}
+      logs={logs}
     />
   );
 }
